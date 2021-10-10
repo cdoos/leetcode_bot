@@ -5,7 +5,7 @@ from query.getUserProfile import getuser, getprofile
 from sql.update_sql import get_top_10, update_user, update_all_users
 import prettytable as pt
 import imgkit
-import os, sys, subprocess, platform
+import os, platform
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -41,7 +41,7 @@ def top_image(top: list) -> bytes:
         for data in user:
             row.append(data)
         table.add_row(row)
-    img = imgkit.from_string(table.get_html_string(format=True), False, config=IMGKIT_CONFIG, options=IMGKIT_OPTIONS)
+    img = imgkit.from_string(table.get_html_string(format=True), False, config=IMGKIT_CONFIG)
     return img
 
 
