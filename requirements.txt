@@ -1,5 +1,4 @@
 python-telegram-bot
 requests~=2.26.0
 prettytable~=2.2.1
-wkhtmltopdf
 imgkit~=1.2.2
