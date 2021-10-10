@@ -15,10 +15,7 @@ if platform.system() == 'Windows':
     IMGKIT_CONFIG = imgkit.config(
         wkhtmltoimage=os.environ.get('WKHTMLTOIMAGE_BINARY', 'C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltoimage.exe'))
 else:
-    os.environ['PATH'] += os.pathsep + os.path.dirname(sys.executable)
-    WKHTMLTOIMAGE_CMD = subprocess.Popen(['which', os.environ.get('WKHTMLTOIMAGE_BINARY', 'wkhtmltoimage')],
-                                       stdout=subprocess.PIPE).communicate()[0].strip()
-    IMGKIT_CONFIG = imgkit.config(wkhtmltoimage=WKHTMLTOIMAGE_CMD)
+    IMGKIT_CONFIG = imgkit.config(wkhtmltoimage='./bin/wkhtmltoimage')
 
 IMGKIT_OPTIONS = {'width': 800, 'disable-smart-width': ''}
 
