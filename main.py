@@ -5,11 +5,21 @@ from query.getUserProfile import getuser, getprofile
 from sql.update_sql import get_top_10, update_user, update_all_users
 import prettytable as pt
 import imgkit
+import os, sys, subprocess, platform
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
-IMGKIT_CONFIG = imgkit.config(wkhtmltoimage='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltoimage.exe')
+
+if platform.system() == 'Windows':
+    IMGKIT_CONFIG = imgkit.config(
+        wkhtmltoimage=os.environ.get('WKHTMLTOIMAGE_BINARY', 'C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltoimage.exe'))
+else:
+    os.environ['PATH'] += os.pathsep + os.path.dirname(sys.executable)
+    WKHTMLTOIMAGE_CMD = subprocess.Popen(['which', os.environ.get('WKHTMLTOIMAGE_BINARY', 'wkhtmltoimage')],
+                                       stdout=subprocess.PIPE).communicate()[0].strip()
+    IMGKIT_CONFIG = imgkit.config(wkhtmltoimage=WKHTMLTOIMAGE_CMD)
+
 IMGKIT_OPTIONS = {'width': 800, 'disable-smart-width': ''}
 
 whitelist = [-1001386280522, -616311142]
