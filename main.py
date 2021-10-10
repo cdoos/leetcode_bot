@@ -41,7 +41,7 @@ def top_image(top: list) -> bytes:
         for data in user:
             row.append(data)
         table.add_row(row)
-    img = imgkit.from_string(table.get_html_string(format=True), False, config=IMGKIT_CONFIG)
+    img = imgkit.from_string(table.get_html_string(format=True), False, config=IMGKIT_CONFIG, options=IMGKIT_OPTIONS)
     return img
 
 
