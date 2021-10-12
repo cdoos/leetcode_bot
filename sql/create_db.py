@@ -1,7 +1,6 @@
-import sqlite3
-import os
+from sql.update_sql import connect_to_db
 
-conn = sqlite3.connect(os.path.dirname(os.getcwd()) + '/profiles.db')
+conn = connect_to_db()
 cur = conn.cursor()
 cur.execute("""CREATE TABLE IF NOT EXISTS users(
    username TEXT PRIMARY KEY,

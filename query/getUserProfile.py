@@ -1,7 +1,7 @@
 import requests
 import json
 from query.query_config import URL, HEADERS, QUERY_PROFILE, QUERY_RECENT_SUBMISSION
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def getuser(username: str) -> str:
@@ -30,7 +30,8 @@ def getprofile(username: str) -> tuple:
     response = response['data']['recentSubmissionList']
     if len(response) > 0:
         response = response[0]
-        recent_submission = response['title'] + ' (' + str(datetime.fromtimestamp(int(response['timestamp']))) + ') '
+        date = datetime.fromtimestamp(int(response['timestamp'])) + timedelta(hours=6)
+        recent_submission = response['title'] + ' (' + str(date) + ') '
     else:
         recent_submission = '-'
     return username, data[1]['count'], data[2]['count'], data[3]['count'], data[0]['count'], recent_submission

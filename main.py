@@ -1,8 +1,10 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext.dispatcher import run_async
+from telegram.ext.defaults import Defaults
 import logging
 from query.getUserProfile import getuser, getprofile
-from sql.update_sql import get_top_10, update_user, update_all_users
+from sql.update_sql import get_top_10, update_user, update_all_users, get_all_users, delete_user, get_user
 import prettytable as pt
 import imgkit
 import os, platform
@@ -41,17 +43,18 @@ def top_image(top: list) -> bytes:
         for data in user:
             row.append(data)
         table.add_row(row)
-    img = imgkit.from_string(table.get_html_string(format=True), False, config=IMGKIT_CONFIG, options=IMGKIT_OPTIONS)
+    img = imgkit.from_string(table.get_html_string(format=True), False, config=IMGKIT_CONFIG)
     return img
 
 
+@run_async
 def profile(update: Update, context: CallbackContext) -> None:
     chat = update.effective_chat
     if chat.id not in whitelist:
         return
     message = update.message
     if len(message.text.split(' ')) != 2:
-        message.reply_text('Incorrect arguments! Try: /profile <username>')
+        message.reply_text('Incorrect arguments! Try: /profile <LEETCODE username>')
         return
     message.reply_text(getuser(message.text.split(' ')[1]))
 
@@ -62,7 +65,7 @@ def add_top(update: Update, context: CallbackContext) -> None:
         return
     message = update.message
     if len(message.text.split(' ')) != 2:
-        message.reply_text('Incorrect arguments! Try: /add_top <username>')
+        message.reply_text('Incorrect arguments! Try: /add_top <LEETCODE username>')
         return
     try:
         user_data = getprofile(message.text.split(' ')[1])
@@ -106,13 +109,39 @@ def update_top(update: Update, context: CallbackContext) -> None:
     message.reply_text('The top list is successfully updated')
 
 
+def get_all(update: Update, context: CallbackContext) -> None:
+    message = update.message
+    chat = update.effective_chat
+    if chat.id not in whitelist:
+        return
+    message.reply_photo(top_image(get_all_users()))
+
+
+def delete(update: Update, context: CallbackContext) -> None:
+    message = update.message
+    chat = update.effective_chat
+    if chat.id not in whitelist:
+        return
+    if len(message.text.split(' ')) != 2:
+        message.reply_text('Incorrect arguments! Try: /delete <LEETCODE username>')
+        return
+    cur_profile = message.text.split(' ')[1]
+    try:
+        get_user(cur_profile)
+        delete_user(cur_profile)
+        message.reply_text('Profile ' + cur_profile + ' deleted')
+    except ValueError as e:
+        message.reply_text(str(e))
+
+
 def commands(update: Update, context: CallbackContext) -> None:
     message = update.message
     response = 'The list of commands:\n\n' + \
-               '/profile <username> - get user profile\n\n' + \
-               '/add_top <username> - add profile to the top list\n\n' + \
+               '/profile <LEETCODE username> - get user profile\n\n' + \
+               '/add_top <LEETCODE username> - add profile to the top list\n\n' + \
                '/top_all - return the top 10 profiles sorted by all submissions\n\n' + \
                '/top_easy, /top_medium, /top_hard - top 10 sorted by easy, medium, hard respectively\n\n' + \
+               '/get_all - get all user profiles\n\n' + \
                '/update_top - updates the top list'
     message.reply_text(response)
 
@@ -127,6 +156,8 @@ def main() -> None:
                 CommandHandler('top_medium', top_medium),
                 CommandHandler('top_hard', top_hard),
                 CommandHandler('update_top', update_top),
+                CommandHandler('get_all', get_all),
+                CommandHandler('delete', delete),
                 CommandHandler('commands', commands)]
     for handler in handlers:
         dispatcher.add_handler(handler)
